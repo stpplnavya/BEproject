@@ -15,7 +15,30 @@ public class User {
     String password;
 
     @Basic
+    String cpassword;
+
+    @Id
+    String empid;
+
+    @Basic
     String role;
+
+
+    public String getCpassword() {
+        return cpassword;
+    }
+
+    public void setCpassword(String cpassword) {
+        this.cpassword = cpassword;
+    }
+
+    public String getEmpid() {
+        return empid;
+    }
+
+    public void setEmpid(String empid) {
+        this.empid = empid;
+    }
 
     public String getRole() {
         return role;
@@ -24,6 +47,7 @@ public class User {
     public void setRole(String role) {
         this.role = role;
     }
+
 
     public String getPassword() {
 
