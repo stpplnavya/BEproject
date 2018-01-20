@@ -67,23 +67,16 @@ public class UserController extends Controller {
     /*@Transactional
     public Result authenticate() {
         JsonNode jsonNode = request().body().asJson();
-
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
-
-
         if (null == username) {
             return badRequest("Missing Username");
         }
-
         if (null == password) {
             return badRequest("Missing password");
         }
-
         jpaApi.em().createQuery("SELECT username from User u", User.class);
         //LOGGER.info(" return value in authenticate", )
-
-
         return null;
     }*/
     @Transactional
