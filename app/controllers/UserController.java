@@ -1,94 +1,93 @@
 package controllers;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
+import daos.UserDao;
 import models.User;
-import play.Logger;
-import play.db.jpa.JPAApi;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import javax.persistence.TypedQuery;
-import java.util.Collection;
-import java.util.HashMap;
+import javax.inject.Inject;
 import java.util.List;
-import java.util.Map;
-
 
 public class UserController extends Controller {
 
-    private final static Logger.ALogger LOGGER = Logger.of(UserController.class);
-
-    private Map<Integer, User> Users = new HashMap<>();
-    private JPAApi jpaApi;
-    private Integer index = 0;
+    private UserDao userDao;
 
     @Inject
-    public UserController(JPAApi jpaApi) {
-        this.jpaApi = jpaApi;
+    public UserController (UserDao userDao) {
+        this.userDao = userDao;
     }
+
 
     @Transactional
     public Result createUser() {
 
-        JsonNode jsonNode = request().body().asJson();
-
+        final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
-
+      //  final String role = jsonNode.get("role").asText();
 
         if (null == username) {
-            return badRequest("Missing Username");
+            return badRequest("Missing user name");
         }
-
         if (null == password) {
             return badRequest("Missing password");
         }
 
 
-        User user = new User();
-        user.setUsername(username);
+
+      //  if (null == role) {
+      //      return badRequest("Missing role");
+      //  }
+
+        User user = new User(username,password);
         user.setPassword(password);
+        user.setUsername(username);
+        //user.setRole(role);
 
-        LOGGER.debug("user id before: {}", user.getId());
+        user=userDao.persist(user);
 
-        jpaApi.em().persist(user);
-
-        LOGGER.debug("user id after: {}", user.getId());
-        // store in DB
-        // return user id
-        return created(user.getId().toString());
+        return created(String.valueOf(user.getId()));
 
     }
 
-    // Auhenticate
-
-    /*@Transactional
-    public Result authenticate() {
-        JsonNode jsonNode = request().body().asJson();
-        final String username = jsonNode.get("username").asText();
-        final String password = jsonNode.get("password").asText();
-        if (null == username) {
-            return badRequest("Missing Username");
-        }
-        if (null == password) {
-            return badRequest("Missing password");
-        }
-        jpaApi.em().createQuery("SELECT username from User u", User.class);
-        //LOGGER.info(" return value in authenticate", )
-        return null;
-    }*/
     @Transactional
-    public Result getAllUsers() {
+    public Result deleteUser(){
 
-        final Collection<User> users = this.Users.values();
-        TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u", User.class);
-        List<User>  users1= query.getResultList();
+        final JsonNode jsonNode = request().body().asJson();
+        final String username = jsonNode.get("username").asText();
 
-        final JsonNode jsonNode = Json.toJson(users1);
-        return (ok(jsonNode));
+        if (null == username) {
+            return badRequest("Missing user name");
+        }
+
+        final User user = userDao.deleteUser(username);
+
+        if(null==user){
+            return notFound("user with the following username nt found"+username);
+        }
+
+        return noContent();
     }
 
+    @Transactional
+    public Result updateUser(String username){
+        return TODO;
+
+    }
+
+
+    @Transactional
+    public Result getAllUsers(){
+
+        final List<User> users = userDao.findAll();
+
+        final JsonNode jsonNode = Json.toJson(users);
+
+        return ok(jsonNode);
+
+    }
 
 }
