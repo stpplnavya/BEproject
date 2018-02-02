@@ -1,7 +1,8 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
+import controllers.Security.Authenticator;
+import daos.UserDao;
 import models.EdForm1;
 import play.Logger;
 import play.db.jpa.JPAApi;
@@ -22,14 +23,19 @@ public class EdForm1Controller extends Controller {
     private Map<Integer, EdForm1> Form = new HashMap<>();
 
     private JPAApi jpaApi;
+    private UserDao userDao;
+
+    @javax.inject.Inject
+    public EdForm1Controller (UserDao userDao, JPAApi jpaApi) {
+        this.userDao = userDao;
+        this.jpaApi =  jpaApi;
+    }
     private Integer index = 0;
 
-    @Inject
-    public EdForm1Controller(JPAApi jpaApi) {
-        this.jpaApi = jpaApi;
-    }
+
 
     @Transactional
+    @Authenticator
     public Result createForm() {
 
         JsonNode jsonNode = request().body().asJson();
@@ -59,6 +65,7 @@ public class EdForm1Controller extends Controller {
         return created(form.getId().toString());
 
     }
+
 
     @Transactional
     public Result getForm() {

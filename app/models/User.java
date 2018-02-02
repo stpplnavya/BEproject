@@ -14,11 +14,60 @@ public class User {
     @Basic
     String password;
 
+    public enum Role {
+        Admin,
+        User
+    }
+
     @Basic
-    String role;
+    Role role;
 
     @Basic
     String token;
+
+    @Basic
+    Long threshold;
+
+    @Basic
+    Long generatedTime;
+
+    public Long getGeneratedTime() {
+        return generatedTime;
+    }
+
+    public void setGeneratedTime(Long generatedTime) {
+        this.generatedTime = generatedTime;
+    }
+
+    public Long getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(Long threshold) {
+        this.threshold = threshold;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    /*public String getTokenExpiration() {
+        return tokenExpiration;
+    }
+
+    public void setTokenExpiration(String tokenExpiration) {
+        this.tokenExpiration = tokenExpiration;
+    }*/
+
+    //@Basic
+
+   // String tokenExpiration;
+
+
 
     public User() {
 
@@ -38,13 +87,7 @@ public class User {
         //this.role = role;
     }
 
-    public String getRole() {
-        return role;
-    }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public String getPassword() {
 

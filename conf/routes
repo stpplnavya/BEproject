@@ -13,14 +13,17 @@ GET     /message                    controllers.AsyncController.message
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 #User
+DELETE /user                        controllers.UserController.deleteUser()
+GET /user                           controllers.UserController.getAllUsers()
+POST /userver                       controllers.LoginController.login()
+GET /cuser                       controllers.LoginController.getCurrentUser()
 POST /Users                         controllers.UserController.createUser()
 GET /Users                          controllers.UserController.getAllUsers()
 
+
+#Form
 POST /Form                         controllers.EdForm1Controller.createForm()
 GET /Form                          controllers.EdForm1Controller.getForm()
 
 
-POST    /user                       controllers.UserController.createUser()
-DELETE /user                        controllers.UserController.deleteUser()
-GET /user                           controllers.UserController.getAllUsers()
-POST /userver                       controllers.LoginController.verify()
+

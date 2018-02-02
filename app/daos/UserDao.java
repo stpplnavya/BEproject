@@ -1,6 +1,7 @@
 package daos;
 
 import models.User;
+import play.Logger;
 import play.db.jpa.JPAApi;
 import play.mvc.Result;
 
@@ -42,6 +43,21 @@ public class UserDao {
         return user;
 
     }
+
+
+    public List<User> findByToken(String token) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where token = :token", User.class);
+        Logger.debug("Query result : " + query);
+        query.setParameter("token",token);
+        List<User> result1 = query.getResultList();
+
+        return result1;
+
+
+    }
+
+
 
     public Result findByName(String username) {
 

@@ -1,6 +1,9 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.Security.Authenticator;
+import controllers.Security.IsAdmin;
 import models.User;
 import play.Logger;
 import play.db.jpa.JPAApi;
@@ -11,10 +14,11 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-public class LoginController extends Controller {
+public class LoginController extends Controller{
 
     private final static Logger.ALogger LOGGER = Logger.of(LoginController.class);
      private JPAApi jpaApi;
@@ -26,7 +30,7 @@ public class LoginController extends Controller {
 
 
     @Transactional
-    public Result verify() {
+    public Result login() {
 
 
         final JsonNode jsonNode = request().body().asJson();
@@ -42,28 +46,47 @@ public class LoginController extends Controller {
         }
 
         TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
+        Logger.debug(String.valueOf(query));
+        final List<User> Result = query.getResultList();
 
-        List<User> Result = query.getResultList();
-
-        for (User p : Result) {
-
-            System.out.print(p.getPassword());// Object[] array=users.toArray();
-
-
-            if (password.equals(p.getPassword())) {
-
-                final JsonNode jsonNode1 = Json.toJson(Result);
-
-                return ok("Successful");
-            }
-            else
-                return ok("Invalid parameters");
+        if (Result.isEmpty()) {
+            return unauthorized();
         }
-        LOGGER.debug("");
-        String token = generateToken();
-        jpaApi.em().persist(token);
-        final JsonNode jsonNode1 = Json.toJson(token);
-        return ok("Your Access token : "+jsonNode1);
+
+        if (Result.size() > 1) {
+            return internalServerError();
+        }
+
+        final User user = Result.get(0);
+
+
+        Logger.debug(user.getPassword());
+
+        if (password.equals(user.getPassword())) {
+
+            String token = generateToken();
+            long generatedTime = Calendar.getInstance().getTimeInMillis();
+            long threshold=generatedTime+3600;
+
+            Logger.debug(token);
+
+            user.setToken(token);
+            user.setGeneratedTime(generatedTime);
+            user.setThreshold(threshold);
+            jpaApi.em().persist(user);
+
+
+            ObjectNode result = Json.newObject();
+            result.put("access_token", token);
+            result.put("expiry_time", threshold);
+
+            return ok(result);
+
+        }
+        else
+            return ok("Invalid password");
+
+
     }
 
     static private String generateToken() {
@@ -80,8 +103,36 @@ public class LoginController extends Controller {
         }
 
         String saltStr = salt.toString();
-        return String.valueOf(ok(saltStr));
+        Logger.debug(saltStr);
+        return saltStr;
 
     }
+
+
+
+    @Authenticator
+    public Result getCurrentUser() {
+
+        LOGGER.debug("Get current user");
+
+        final User user = (User) ctx().args.get("user");
+
+        LOGGER.debug("User: {}", user);
+
+        final JsonNode json = Json.toJson(user);
+        return ok(json);
+    }
+
+    @Authenticator
+    @IsAdmin
+    public Result deleteUser(String id) {
+        return TODO;
+    }
+
+    @Authenticator
+    public Result updateUser(String id) {
+        return TODO;
+    }
+
 
 }

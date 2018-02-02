@@ -3,23 +3,29 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import daos.UserDao;
 import models.User;
+import play.Logger;
+import play.db.jpa.JPAApi;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 public class UserController extends Controller {
 
+    private final static Logger.ALogger LOGGER = Logger.of(LoginController.class);
+
+    private JPAApi jpaApi;
     private UserDao userDao;
 
     @Inject
-    public UserController (UserDao userDao) {
+    public UserController (UserDao userDao, JPAApi jpaApi) {
         this.userDao = userDao;
+        this.jpaApi =  jpaApi;
     }
-
 
     @Transactional
     public Result createUser() {
@@ -41,15 +47,23 @@ public class UserController extends Controller {
       //  if (null == role) {
       //      return badRequest("Missing role");
       //  }
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
 
-        User user = new User(username,password);
-        user.setPassword(password);
-        user.setUsername(username);
-        //user.setRole(role);
+        List<User> Result = query.getResultList();
 
-        user=userDao.persist(user);
+        if(Result.isEmpty()) {
 
-        return created(String.valueOf(user.getId()));
+            User user = new User(username, password);
+            user.setPassword(password);
+            user.setUsername(username);
+            //user.setRole(role);
+
+            user = userDao.persist(user);
+
+            return created(user.getId().toString());
+        }
+        else
+            return status(409,"username already exists");
 
     }
 
@@ -58,6 +72,8 @@ public class UserController extends Controller {
 
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
+
+        Logger.debug(username);
 
         if (null == username) {
             return badRequest("Missing user name");
