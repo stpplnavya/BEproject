@@ -10,7 +10,6 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -55,12 +54,13 @@ public class AuthenticatorAction extends Action.Simple {
         if (null == user) {
             return CompletableFuture.completedFuture(unauthorized());
         }
-        final JsonNode jsonNode = Json.toJson(user);
+        if (token.equals(user.getToken()))
+        {
+            final JsonNode jsonNode = Json.toJson(user);
+        }
+        else return  CompletableFuture.completedFuture(unauthorized());
+
         // Check expiration
-
-        Long receivedTime = Calendar.getInstance().getTimeInMillis();
-        if(receivedTime > jsonNode.findValue("threshold").asLong())
-
 
         // TODO
 

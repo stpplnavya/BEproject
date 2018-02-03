@@ -3,7 +3,6 @@ package daos;
 import models.User;
 import play.Logger;
 import play.db.jpa.JPAApi;
-import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
@@ -57,11 +56,27 @@ public class UserDao {
 
     }
 
+    public List<User> findByRefreshToken(String reftoken) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where reftoken = :reftoken", User.class);
+        Logger.debug("Query result : " + query);
+        query.setParameter("reftoken",reftoken);
+        List<User> result1 = query.getResultList();
+
+        return result1;
 
 
-    public Result findByName(String username) {
+    }
 
-        return null;
+
+
+    public List<User> findByName(String username) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
+        Logger.debug(String.valueOf(query));
+        final List<User> Result = query.getResultList();
+
+        return Result;
     }
 
     public List<User> findAll() {
@@ -71,5 +86,6 @@ public class UserDao {
 
         return users1;
     }
+
 
 }

@@ -15,10 +15,11 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #User
 DELETE /user                        controllers.UserController.deleteUser()
 GET /user                           controllers.UserController.getAllUsers()
-POST /userver                       controllers.LoginController.login()
-GET /cuser                       controllers.LoginController.getCurrentUser()
+POST /userver                       controllers.UserController.login()
+GET /cuser                          controllers.UserController.getCurrentUser()
 POST /Users                         controllers.UserController.createUser()
 GET /Users                          controllers.UserController.getAllUsers()
+GET /reftoken/:reftoken             controllers.UserController.verifyRefreshToken(reftoken: String)
 
 
 #Form

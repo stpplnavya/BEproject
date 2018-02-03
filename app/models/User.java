@@ -29,14 +29,25 @@ public class User {
     Long threshold;
 
     @Basic
-    Long generatedTime;
+    String salt;
 
-    public Long getGeneratedTime() {
-        return generatedTime;
+    @Basic
+    String reftoken;
+
+    public String getRefToken() {
+        return reftoken;
     }
 
-    public void setGeneratedTime(Long generatedTime) {
-        this.generatedTime = generatedTime;
+    public void setRefToken(String refToken) {
+        this.reftoken = refToken;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public Long getThreshold() {
@@ -55,20 +66,6 @@ public class User {
         this.role = role;
     }
 
-    /*public String getTokenExpiration() {
-        return tokenExpiration;
-    }
-
-    public void setTokenExpiration(String tokenExpiration) {
-        this.tokenExpiration = tokenExpiration;
-    }*/
-
-    //@Basic
-
-   // String tokenExpiration;
-
-
-
     public User() {
 
     }
@@ -84,10 +81,7 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        //this.role = role;
     }
-
-
 
     public String getPassword() {
 
