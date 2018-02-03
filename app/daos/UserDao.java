@@ -1,8 +1,10 @@
 package daos;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import models.User;
 import play.Logger;
 import play.db.jpa.JPAApi;
+import play.libs.Json;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
@@ -56,27 +58,35 @@ public class UserDao {
 
     }
 
-    public List<User> findByRefreshToken(String reftoken) {
+    public JsonNode findByRefreshToken(String reftoken) {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where reftoken = :reftoken", User.class);
         Logger.debug("Query result : " + query);
         query.setParameter("reftoken",reftoken);
         List<User> result1 = query.getResultList();
+        if (result1.size() == 0) {
+                      return null;
+                 }
 
-        return result1;
-
+        final JsonNode json = Json.toJson(result1);
+        return json;
 
     }
 
 
 
-    public List<User> findByName(String username) {
+    public JsonNode findByName(String username) {
 
         TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
         Logger.debug(String.valueOf(query));
         final List<User> Result = query.getResultList();
 
-        return Result;
+        if (Result.size() == 0) {
+            return null;
+        }
+
+        final JsonNode json = Json.toJson(Result);
+        return json;
     }
 
     public List<User> findAll() {

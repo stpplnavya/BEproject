@@ -1,11 +1,9 @@
 package controllers.Security;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import daos.UserDao;
 import models.User;
 import play.Logger;
-import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -54,12 +52,12 @@ public class AuthenticatorAction extends Action.Simple {
         if (null == user) {
             return CompletableFuture.completedFuture(unauthorized());
         }
-        if (token.equals(user.getToken()))
+        /*if (token.equals(user.getToken()))
         {
             final JsonNode jsonNode = Json.toJson(user);
         }
         else return  CompletableFuture.completedFuture(unauthorized());
-
+        */
         // Check expiration
 
         // TODO

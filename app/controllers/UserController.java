@@ -93,26 +93,25 @@ public class UserController extends Controller {
             return badRequest("Missing password");
         }
 
-        List<User> result = userDao.findByName(username);
+        JsonNode result = userDao.findByName(username);
+        if (null == result) {
+
+            return status(401, "No user specified");
 
 
+        }
 
-
-        final User user = result.get(0);
-
-        Logger.debug(user.getPassword());
-        String salt = user.getSalt();
+        String salt = result.findValue("salt").asText();
         String hashPwd = Utils.generateHashedPassword(password,salt,10);
         Logger.debug("Hashed password : "+hashPwd);
 
-        if (hashPwd.equals(user.getPassword())) {
+        if (hashPwd.equals(result.findValue("password").asText())) {
 
             String token = Utils.generateToken();
             String reftoken = Utils.generateToken();
-
-
             Long threshold = Utils.generateThreshold();
 
+            User user = new User();
             user.setToken(token);
             user.setRefToken(reftoken);
             user.setThreshold(threshold);
@@ -139,10 +138,16 @@ public class UserController extends Controller {
     public Result verifyRefreshToken(String reftoken) {
 
 
-        List<User> refkey = userDao.findByRefreshToken(reftoken);
+        JsonNode refkey = userDao.findByRefreshToken(reftoken);
+        Logger.debug("Find by ref token : "+ refkey);
 
-        if(reftoken.equals(refkey.get(0)))
-        {
+        if (null == refkey) {
+
+            return status(401, "No refresh token specified");
+
+        }
+        else {
+            Logger.debug("refresh token :" + String.valueOf(refkey));
             String newtoken = Utils.generateToken();
             Long newthreshold = Utils.generateThreshold();
             User user = new User();
@@ -156,8 +161,6 @@ public class UserController extends Controller {
 
             return ok(result2);
         }
-
-        else return status(401,"Invalid Refresh token ! ");
 
     }
 
