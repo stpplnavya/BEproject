@@ -1,8 +1,11 @@
 package models;
+
 import javax.persistence.*;
 
 @Entity
 public class User {
+
+    private final static play.Logger.ALogger LOGGER = play.Logger.of(User.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -98,7 +101,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+       this.username = username;
     }
 
     public Integer getId() {

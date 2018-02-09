@@ -1,10 +1,8 @@
 package daos;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import models.User;
 import play.Logger;
 import play.db.jpa.JPAApi;
-import play.libs.Json;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
@@ -46,55 +44,52 @@ public class UserDao {
     }
 
 
-    public List<User> findByToken(String token) {
+    public User findByToken(String token) {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where token = :token", User.class);
-        Logger.debug("Query result : " + query);
         query.setParameter("token",token);
-        List<User> result1 = query.getResultList();
-
-        return result1;
-
-
-    }
-
-    public JsonNode findByRefreshToken(String reftoken) {
-
-        TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where reftoken = :reftoken", User.class);
-        Logger.debug("Query result : " + query);
-        query.setParameter("reftoken",reftoken);
-        List<User> result1 = query.getResultList();
-        if (result1.size() == 0) {
-                      return null;
-                 }
-
-        final JsonNode json = Json.toJson(result1);
-        return json;
-
-    }
-
-
-
-    public JsonNode findByName(String username) {
-
-        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
-        Logger.debug(String.valueOf(query));
-        final List<User> Result = query.getResultList();
-
-        if (Result.size() == 0) {
+        List<User> users = query.getResultList();
+        if (users.isEmpty()) {
             return null;
         }
+        return users.get(0);
 
-        final JsonNode json = Json.toJson(Result);
-        return json;
+
+    }
+
+    public User findByRefreshToken(String reftoken) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u where reftoken = :reftoken", User.class);
+        query.setParameter("reftoken",reftoken);
+        List<User> users = query.getResultList();
+        if (users.isEmpty()) {
+                      return null;
+        }
+
+        return users.get(0);
+
+    }
+
+
+
+    public User findByName(String username) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
+        final List<User> users = query.getResultList();
+
+        if (users.isEmpty()) {
+              return null;
+        }
+
+        return users.get(0);
     }
 
     public List<User> findAll() {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u", User.class);
-        List<User> users1 = query.getResultList();
+        List<User> users = query.getResultList();
 
-        return users1;
+        return users;
     }
 
 

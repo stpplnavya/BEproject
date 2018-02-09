@@ -8,7 +8,6 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -48,7 +47,7 @@ public class AuthenticatorAction extends Action.Simple {
         LOGGER.debug("Access token: {}", token);
 
         // Get user by access token from database
-        final List<User> user = userDao.findByToken(token);
+        final User user = userDao.findByToken(token);
         if (null == user) {
             return CompletableFuture.completedFuture(unauthorized());
         }

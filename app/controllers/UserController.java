@@ -13,7 +13,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
-import javax.persistence.TypedQuery;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class UserController extends Controller {
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
-      //  final String role = jsonNode.get("role").asText();
+        //final String role = jsonNode.get("role").asText();
 
         if (null == username) {
             return badRequest("Missing user name");
@@ -46,28 +45,22 @@ public class UserController extends Controller {
         }
 
 
-      //  if (null == role) {
-      //      return badRequest("Missing role");
-      //  }
-        //user.setRole(role);
+        //  if (null == role) {
+        //      return badRequest("Missing role");
+        //  }
+        // user.setRole(role);
 
 
-        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + username + "'", User.class);
+        User user = userDao.findByName(username);
 
-        List<User> Result = query.getResultList();
+        if (null == user) {
 
-        if(Result.isEmpty()) {
-
+            user = new User();
             String salt = Utils.generateSalt();
-            User user = new User();
             user.setUsername(username);
             user.setSalt(salt);
-
             String hashedPassword = Utils.generateHashedPassword(password,salt,10);
             user.setPassword(hashedPassword);
-
-
-
             user = userDao.persist(user);
 
             return created(String.valueOf(user.getId()));
@@ -85,7 +78,6 @@ public class UserController extends Controller {
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
 
-
         if (null == username) {
             return badRequest("Missing user name");
         }
@@ -93,64 +85,56 @@ public class UserController extends Controller {
             return badRequest("Missing password");
         }
 
-        JsonNode result = userDao.findByName(username);
-        if (null == result) {
-
-            return status(401, "No user specified");
-
-
+        User user = userDao.findByName(username);
+        if (null == user) {
+            return status(401, "No user with given username");
         }
 
-        String salt = result.findValue("salt").asText();
+        String salt = user.getSalt();
         String hashPwd = Utils.generateHashedPassword(password,salt,10);
         Logger.debug("Hashed password : "+hashPwd);
+        Logger.debug("DB password : "+user.getPassword());
 
-        if (hashPwd.equals(result.findValue("password").asText())) {
+
+        if (hashPwd.equals(user.getPassword())) {
 
             String token = Utils.generateToken();
             String reftoken = Utils.generateToken();
             Long threshold = Utils.generateThreshold();
 
-            User user = new User();
             user.setToken(token);
             user.setRefToken(reftoken);
             user.setThreshold(threshold);
             userDao.persist(user);
-
 
             ObjectNode result1 = Json.newObject();
             result1.put("access_token", token);
             result1.put("expiry_time", threshold);
             result1.put("refresh_token", reftoken);
 
-
-
             return ok(result1);
 
-        }
+       }
+
         else
             return ok("Invalid password");
-
 
     }
 
     @Transactional
     public Result verifyRefreshToken(String reftoken) {
 
-
-        JsonNode refkey = userDao.findByRefreshToken(reftoken);
-        Logger.debug("Find by ref token : "+ refkey);
-
-        if (null == refkey) {
+       User user = userDao.findByRefreshToken(reftoken);
+        if (null == user) {
 
             return status(401, "No refresh token specified");
 
         }
+
         else {
-            Logger.debug("refresh token :" + String.valueOf(refkey));
             String newtoken = Utils.generateToken();
             Long newthreshold = Utils.generateThreshold();
-            User user = new User();
+
             user.setToken(newtoken);
             user.setThreshold(newthreshold);
             userDao.persist(user);

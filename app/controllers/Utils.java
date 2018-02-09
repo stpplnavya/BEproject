@@ -1,7 +1,5 @@
 package controllers;
 
-import play.Logger;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +22,6 @@ public class Utils {
         }
 
         String saltStr = salt.toString();
-        Logger.debug(saltStr);
         return saltStr;
 
     }
@@ -32,10 +29,8 @@ public class Utils {
     public static String generateHashedPassword(String password, String salt, int iteration) throws NoSuchAlgorithmException {
 
         String saltPwd = salt.concat(password);
-
         MessageDigest mDigest = MessageDigest.getInstance("SHA-256");
         final byte[] hash = mDigest.digest(saltPwd.getBytes(StandardCharsets.UTF_8));
-
         StringBuffer hexString = new StringBuffer();
 
         for(int i=0; i< iteration; i++){
@@ -48,19 +43,18 @@ public class Utils {
 
     static public String generateToken() {
 
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        String saltchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
         StringBuilder salt = new StringBuilder();
         Random rnd = new Random();
 
         while (salt.length() < 18) { // length of the random string.
 
-            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-            salt.append(SALTCHARS.charAt(index));
+            int index = (int) (rnd.nextFloat() * saltchars.length());
+            salt.append(saltchars.charAt(index));
 
         }
 
         String saltStr = salt.toString();
-        Logger.debug(saltStr);
         return saltStr;
 
     }
