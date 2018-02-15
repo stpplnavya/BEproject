@@ -51,13 +51,6 @@ public class AuthenticatorAction extends Action.Simple {
         if (null == user) {
             return CompletableFuture.completedFuture(unauthorized());
         }
-        /*if (token.equals(user.getToken()))
-        {
-            final JsonNode jsonNode = Json.toJson(user);
-        }
-        else return  CompletableFuture.completedFuture(unauthorized());
-        */
-        // Check expiration
 
         // TODO
 

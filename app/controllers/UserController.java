@@ -44,12 +44,10 @@ public class UserController extends Controller {
             return badRequest("Missing password");
         }
 
-
         //  if (null == role) {
         //      return badRequest("Missing role");
         //  }
         // user.setRole(role);
-
 
         User user = userDao.findByName(username);
 
@@ -67,12 +65,10 @@ public class UserController extends Controller {
         }
         else
             return status(409,"username already exists");
-
     }
 
     @Transactional
     public Result login() throws NoSuchAlgorithmException {
-
 
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
@@ -94,7 +90,6 @@ public class UserController extends Controller {
         String hashPwd = Utils.generateHashedPassword(password,salt,10);
         Logger.debug("Hashed password : "+hashPwd);
         Logger.debug("DB password : "+user.getPassword());
-
 
         if (hashPwd.equals(user.getPassword())) {
 
@@ -118,7 +113,6 @@ public class UserController extends Controller {
 
         else
             return ok("Invalid password");
-
     }
 
     @Transactional
@@ -145,7 +139,6 @@ public class UserController extends Controller {
 
             return ok(result2);
         }
-
     }
 
     @Authenticator
@@ -173,7 +166,7 @@ public class UserController extends Controller {
             return badRequest("Missing user name");
         }
 
-        final User user = userDao.deleteUser(username);
+        final User user = userDao.deleteByName(username);
 
         if(null==user){
             return notFound("user with the following username nt found"+username);
@@ -199,5 +192,4 @@ public class UserController extends Controller {
         return ok(jsonNode);
 
     }
-
 }

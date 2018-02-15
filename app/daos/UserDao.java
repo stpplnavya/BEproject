@@ -1,7 +1,6 @@
 package daos;
 
 import models.User;
-import play.Logger;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -24,11 +23,11 @@ public class UserDao {
         return user;
     }
 
-    public User deleteUser(String username) {
+    public User deleteByName(String username) {
 
-        final User user = findById(username);
+        final User user = findByName(username);
         if (null == user) {
-            return null;
+           return null;
         }
 
         jpaApi.em().remove(user);
@@ -36,13 +35,11 @@ public class UserDao {
         return user;
     }
 
-    public User findById(String username) {
+    public User findById(Integer id) {
 
-        final User user = jpaApi.em().find(User.class, username);
+        final User user = jpaApi.em().find(User.class, id);
         return user;
-
     }
-
 
     public User findByToken(String token) {
 
@@ -53,8 +50,6 @@ public class UserDao {
             return null;
         }
         return users.get(0);
-
-
     }
 
     public User findByRefreshToken(String reftoken) {
@@ -65,12 +60,8 @@ public class UserDao {
         if (users.isEmpty()) {
                       return null;
         }
-
         return users.get(0);
-
     }
-
-
 
     public User findByName(String username) {
 
@@ -91,6 +82,5 @@ public class UserDao {
 
         return users;
     }
-
 
 }

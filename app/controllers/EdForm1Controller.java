@@ -30,13 +30,12 @@ public class EdForm1Controller extends Controller {
         this.userDao = userDao;
         this.jpaApi =  jpaApi;
     }
-    private Integer index = 0;
-
-
 
     @Transactional
     @Authenticator
     public Result createForm() {
+
+        //Logger.
 
         JsonNode jsonNode = request().body().asJson();
 
@@ -46,14 +45,12 @@ public class EdForm1Controller extends Controller {
         final Integer visitors = Integer.valueOf(jsonNode.get("visitors").asText());
         final String feature = jsonNode.get("feature").asText();
 
-
         EdForm1 form = new EdForm1();
         form.setTemplename(templename);
         form.setPlace(place);
         form.setTimings(timings);
         form.setVisitors(visitors);
         form.setFeature(feature);
-
 
         LOGGER.debug("user id before: {}", form.getId());
 
@@ -63,18 +60,24 @@ public class EdForm1Controller extends Controller {
         // store in DB
         // return user id
         return created(form.getId().toString());
+    }
 
+    @Transactional
+    @Authenticator
+    public Result deleteForm() {
+
+        return null;
     }
 
 
     @Transactional
     public Result getForm() {
 
-        final Collection<EdForm1> forms = this.Form.values();
+        final Collection<EdForm1> forms1 = this.Form.values();
         TypedQuery<EdForm1> query = jpaApi.em().createQuery("SELECT u FROM EdForm1 u", EdForm1.class);
-        List<EdForm1> forms1= query.getResultList();
+        List<EdForm1> forms= query.getResultList();
 
-        final JsonNode jsonNode = Json.toJson(forms1);
+        final JsonNode jsonNode = Json.toJson(forms);
         return (ok(jsonNode));
     }
 
