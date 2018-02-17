@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.File;
 
 @Entity
-public class EdForm1 {
+public class Feature {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,21 +23,10 @@ public class EdForm1 {
     private Integer visitors;
 
     @Basic
-    private String feature;
-
-    @Basic
     private File file;
 
     public File getFile() {
         return file;
-    }
-
-    public String getFeature() {
-        return feature;
-    }
-
-    public void setFeature(String feature) {
-        this.feature = feature;
     }
 
     public void setFile(File file) {

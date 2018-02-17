@@ -19,7 +19,6 @@ public class UserDao {
     public User persist(User user) {
 
         jpaApi.em().persist(user);
-
         return user;
     }
 
@@ -29,9 +28,7 @@ public class UserDao {
         if (null == user) {
            return null;
         }
-
         jpaApi.em().remove(user);
-
         return user;
     }
 
@@ -75,7 +72,7 @@ public class UserDao {
         return users.get(0);
     }
 
-    public List<User> findAll() {
+    public List<User> findAllUsers() {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u", User.class);
         List<User> users = query.getResultList();

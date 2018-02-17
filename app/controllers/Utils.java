@@ -18,12 +18,10 @@ public class Utils {
 
             int index = (int) (rnd.nextFloat() * SALTCHARS.length());
             salt.append(SALTCHARS.charAt(index));
-
         }
 
         String saltStr = salt.toString();
         return saltStr;
-
     }
 
     public static String generateHashedPassword(String password, String salt, int iteration) throws NoSuchAlgorithmException {
@@ -51,12 +49,10 @@ public class Utils {
 
             int index = (int) (rnd.nextFloat() * saltchars.length());
             salt.append(saltchars.charAt(index));
-
         }
 
         String saltStr = salt.toString();
         return saltStr;
-
     }
 
     static public Long generateThreshold() {

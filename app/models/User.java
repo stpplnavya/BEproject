@@ -5,8 +5,6 @@ import javax.persistence.*;
 @Entity
 public class User {
 
-    private final static play.Logger.ALogger LOGGER = play.Logger.of(User.class);
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Integer id;

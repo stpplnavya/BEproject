@@ -14,11 +14,14 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserController extends Controller {
 
     private final static Logger.ALogger LOGGER = Logger.of(UserController.class);
+    private Map<Integer, User> users = new HashMap<>();
 
     private JPAApi jpaApi;
     private UserDao userDao;
@@ -108,7 +111,6 @@ public class UserController extends Controller {
             result1.put("refresh_token", reftoken);
 
             return ok(result1);
-
        }
 
         else
@@ -122,7 +124,6 @@ public class UserController extends Controller {
         if (null == user) {
 
             return status(401, "No refresh token specified");
-
         }
 
         else {
@@ -145,9 +146,7 @@ public class UserController extends Controller {
     public Result getCurrentUser() {
 
         LOGGER.debug("Get current user");
-
         final User user = (User) ctx().args.get("user");
-
         LOGGER.debug("User: {}", user);
 
         final JsonNode json = Json.toJson(user);
@@ -159,8 +158,6 @@ public class UserController extends Controller {
 
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
-
-        Logger.debug(username);
 
         if (null == username) {
             return badRequest("Missing user name");
@@ -178,18 +175,15 @@ public class UserController extends Controller {
     @Transactional
     public Result updateUser(String username){
         return TODO;
-
     }
-
 
     @Transactional
     public Result getAllUsers(){
 
-        final List<User> users = userDao.findAll();
+        final List<User> users = userDao.findAllUsers();
 
         final JsonNode jsonNode = Json.toJson(users);
 
         return ok(jsonNode);
-
     }
 }
