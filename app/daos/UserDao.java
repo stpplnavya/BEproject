@@ -28,7 +28,11 @@ public class UserDao {
         if (null == user) {
            return null;
         }
-        jpaApi.em().remove(user);
+        if(user.getSurveys().isEmpty()) {
+            jpaApi.em().remove(user);
+            user.setUsername(null);
+        }
+
         return user;
     }
 

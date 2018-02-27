@@ -1,6 +1,7 @@
 package daos;
 
 import models.Feature;
+import play.Logger;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ public class FeatureDao {
     public Feature findByName(String templename) {
 
         TypedQuery<Feature> query = jpaApi.em().createQuery("select e from Feature e where templename='" + templename + "'", Feature.class);
+        Logger.debug("templename"+templename);
         final List<Feature> forms = query.getResultList();
 
         if (forms.isEmpty()) {

@@ -30,7 +30,7 @@ public class SurveyDao {
 
     public Survey findByName(String surveyname) {
 
-        TypedQuery<Survey> query = jpaApi.em().createQuery("select s from Survey s where surveyname='" + surveyname + "'", Survey.class);
+        TypedQuery<Survey> query = jpaApi.em().createQuery("select s from Survey s where name='" + surveyname + "'", Survey.class);
         final List<Survey> surveys = query.getResultList();
 
         if (surveys.isEmpty()) {

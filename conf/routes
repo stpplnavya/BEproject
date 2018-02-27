@@ -19,17 +19,29 @@ GET /users/all                              controllers.UserController.getAllUse
 GET /users/me                               controllers.UserController.getCurrentUser()
 GET /reftoken/:reftoken                     controllers.UserController.verifyRefreshToken(reftoken: String)
 DELETE /users                               controllers.UserController.deleteUser()
+PUT /users/changeP                          controllers.UserController.changePassword()
+PUT /users/role                             controllers.UserController.updateRole()
 
 #Form
 POST /forms                                  controllers.FeatureController.createForm()
 GET /forms/all                               controllers.FeatureController.getAllForms()
 DELETE /forms                                controllers.FeatureController.deleteForm()
+PUT /forms/:templename                       controllers.FeatureController.updateForm(templename: String)
 
 #Survey
 POST /surveys                                controllers.SurveyController.createSurvey()
 GET /surveys/all                             controllers.SurveyController.getAllSurveys()
 DELETE /surveys                              controllers.SurveyController.deleteSurvey()
+PUT /surveys/:name                            controllers.SurveyController.updateSurvey(name: String)
 
+# Image controller
 
+POST /images                        controllers.ImageController.uploadImage()
+GET /images/:id                     controllers.ImageController.downloadImage(id: String)
+DELETE /images/:id                  controllers.ImageController.deleteImage(id: String)
+
+#MailerService
+
+#GET /mail/:recipient                            controllers.MailerService.sendEmail(recipient : String)
 
 

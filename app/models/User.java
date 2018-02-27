@@ -1,6 +1,9 @@
 package models;
 
+import com.fasterxml.jackson.annotation.*;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class User {
@@ -15,12 +18,14 @@ public class User {
     @Basic
     String password;
 
+
     public enum Role {
         Admin,
         User
     }
 
     @Basic
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Role role;
 
     @Basic
@@ -34,6 +39,26 @@ public class User {
 
     @Basic
     String reftoken;
+
+    @Basic
+    @JsonManagedReference
+    @OneToMany(mappedBy = "admin")
+    private List<Survey> surveys;
+
+    public List<Survey> getSurveys() {
+        return surveys;
+    }
+
+    public void setSurveys(List<Survey> surveys) {
+        this.surveys = surveys;
+    }
+
+
+    public User (String username){
+
+        this.username=username;
+    }
+
 
     public String getRefToken() {
         return reftoken;

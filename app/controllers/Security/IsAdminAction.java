@@ -18,7 +18,7 @@ public class IsAdminAction extends Action.Simple {
     public CompletionStage<Result> call(Http.Context ctx) {
 
         final User user = (User) ctx.args.get("user");
-        if (user.getRole() != User.Role.Admin) {
+        if (user.getRole()!= (User.Role.Admin)) {
             return CompletableFuture.completedFuture(forbidden());
         }
 

@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.*;
+
 import javax.persistence.*;
 
 @Entity
@@ -17,6 +19,19 @@ public class Survey {
 
     @Basic
     private String state;
+
+    @Basic
+    @JsonBackReference
+    @ManyToOne
+    private User admin;
+
+    public User getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(User admin) {
+        this.admin = admin;
+    }
 
     public Integer getId() {
         return id;

@@ -1,5 +1,6 @@
 package controllers.Security;
 
+
 import com.google.inject.Inject;
 import daos.UserDao;
 import models.User;
@@ -28,14 +29,12 @@ public class AuthenticatorAction extends Action.Simple {
 
         LOGGER.debug("AuthenticatorAction2");
 
-        // Get authorization header
         final Optional<String> header = ctx.request().header("Authorization");
         LOGGER.debug("Header: {}", header);
         if (!header.isPresent()) {
             return CompletableFuture.completedFuture(unauthorized());
         }
 
-        // Extract access_token
         if (!header.get().startsWith("Bearer ")) {
             return CompletableFuture.completedFuture(unauthorized());
         }
@@ -46,7 +45,7 @@ public class AuthenticatorAction extends Action.Simple {
         }
         LOGGER.debug("Access token: {}", token);
 
-        // Get user by access token from database
+
         final User user = userDao.findByToken(token);
         if (null == user) {
             return CompletableFuture.completedFuture(unauthorized());

@@ -76,6 +76,25 @@ public class FeatureController extends Controller {
         return noContent();
     }
 
+    @Transactional
+    @Authenticator
+    public Result updateForm(String templename){
+
+        final JsonNode jsonNode = request().body().asJson();
+        final String place = jsonNode.get("place").asText();
+
+        if(null == place){
+            return badRequest("Missing data to be updated");
+        }
+
+        final Feature feature = featureDao.findByName(templename);
+
+        feature.setPlace(place);
+        featureDao.persist(feature);
+
+        return ok("updated the change you made");
+
+    }
 
     @Transactional
     public Result getAllForms() {

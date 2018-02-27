@@ -3,6 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.Security.Authenticator;
+import controllers.Security.IsAdmin;
 import daos.UserDao;
 import models.User;
 import play.Logger;
@@ -47,10 +48,10 @@ public class UserController extends Controller {
             return badRequest("Missing password");
         }
 
-        //  if (null == role) {
-        //      return badRequest("Missing role");
-        //  }
-        // user.setRole(role);
+        //if (null == role) {
+          //    return badRequest("Missing role");
+        //}
+         //user.setRole(role);
 
         User user = userDao.findByName(username);
 
@@ -62,6 +63,7 @@ public class UserController extends Controller {
             user.setSalt(salt);
             String hashedPassword = Utils.generateHashedPassword(password,salt,10);
             user.setPassword(hashedPassword);
+            user.setRole(User.Role.User);
             user = userDao.persist(user);
 
             return created(String.valueOf(user.getId()));
@@ -93,7 +95,7 @@ public class UserController extends Controller {
         String hashPwd = Utils.generateHashedPassword(password,salt,10);
         Logger.debug("Hashed password : "+hashPwd);
         Logger.debug("DB password : "+user.getPassword());
-
+        Logger.debug("User Role"+user.getRole());
         if (hashPwd.equals(user.getPassword())) {
 
             String token = Utils.generateToken();
@@ -154,11 +156,11 @@ public class UserController extends Controller {
     }
 
     @Transactional
+    @Authenticator
     public Result deleteUser(){
 
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
-
         if (null == username) {
             return badRequest("Missing user name");
         }
@@ -168,14 +170,87 @@ public class UserController extends Controller {
         if(null==user){
             return notFound("user with the following username nt found"+username);
         }
-
-        return noContent();
+        if (user.getUsername() == null) {
+            return noContent();
+        }
+        return status(409,"cannot delete user as he has surveys associated");
     }
 
     @Transactional
-    public Result updateUser(String username){
-        return TODO;
+    @Authenticator
+    public Result changePassword() throws NoSuchAlgorithmException {
+
+        final JsonNode jsonNode = request().body().asJson();
+        final String username = jsonNode.get("username").asText();
+        final String old_password = jsonNode.get("old_password").asText();
+        final String new_password=jsonNode.get("new_password").asText();
+        if (null == username) {
+            return badRequest("Missing user name");
+        }
+
+        if(null == old_password){
+            return badRequest("Missing password");
+        }
+
+        if(null == new_password){
+            return badRequest("Missing password");
+        }
+
+        final User user = userDao.findByName(username);
+        String password=user.getPassword();
+        String old_salt=user.getSalt();
+        String hashedPassword = Utils.generateHashedPassword(old_password,old_salt,10);
+        if(password.equals(hashedPassword)) {
+
+            String hashedPassword1 = Utils.generateHashedPassword(new_password, old_salt, 10);
+            user.setPassword(hashedPassword1);
+            userDao.persist(user);
+        }
+        else{
+            return badRequest("wrong password");
+        }
+
+        return ok("changed password");
+
     }
+
+    @Transactional
+    @Authenticator
+    @IsAdmin
+    public Result updateRole(){
+
+        final JsonNode jsonNode = request().body().asJson();
+        final String username = jsonNode.get("username").asText();
+        if (null == username) {
+            return badRequest("Missing user name");
+        }
+
+        final User user= userDao.findByName(username);
+
+        if(user.getRole().equals(User.Role.Admin)){
+
+            return status(409,"cannot update role");
+        }
+        user.setRole(User.Role.Admin);
+        userDao.persist(user);
+
+        return ok("role updated");
+
+    }
+
+    /*@Transactional
+    @Authenticator
+    @IsAdmin
+    public Result resetRole(){
+
+        final JsonNode jsonNode = request().body().asJson();
+        final String username = jsonNode.get("username").asText();
+        if (null == username) {
+            return badRequest("Missing user name");
+        }
+
+
+    }*/
 
     @Transactional
     public Result getAllUsers(){
