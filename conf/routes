@@ -42,6 +42,6 @@ DELETE /images/:id                  controllers.ImageController.deleteImage(id: 
 
 #MailerService
 
-#GET /mail/:recipient                            controllers.MailerService.sendEmail(recipient : String)
+#POST /mail/:recipient                            controllers.MailerServices.sendEmail(recipient : String)
 
 

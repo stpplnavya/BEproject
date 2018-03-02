@@ -238,19 +238,6 @@ public class UserController extends Controller {
 
     }
 
-    /*@Transactional
-    @Authenticator
-    @IsAdmin
-    public Result resetRole(){
-
-        final JsonNode jsonNode = request().body().asJson();
-        final String username = jsonNode.get("username").asText();
-        if (null == username) {
-            return badRequest("Missing user name");
-        }
-
-
-    }*/
 
     @Transactional
     public Result getAllUsers(){
