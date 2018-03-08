@@ -1,7 +1,6 @@
 package models;
 
-import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.List;
 
@@ -10,38 +9,34 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Integer id;
+    private Integer id;
 
     @Basic
-    String username;
+    private String username;
 
     @Basic
-    String password;
+    private String password;
 
-
-    public enum Role {
-        Admin,
-        User
-    }
+    @Basic
+    private String email;
 
     @Basic
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Role role;
+    private Role role;
 
     @Basic
-    String token;
+    private String token;
 
     @Basic
-    Long threshold;
+    private Long threshold;
 
     @Basic
-    String salt;
+    private String salt;
 
     @Basic
-    String reftoken;
+    private String reftoken;
 
-    @Basic
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "admin")
     private List<Survey> surveys;
 
@@ -53,21 +48,38 @@ public class User {
         this.surveys = surveys;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @JsonIgnore
+    public String getReftoken() {
+        return reftoken;
+    }
+
+    public void setReftoken(String reftoken) {
+        this.reftoken = reftoken;
+    }
+
+    public enum Role {
+        Admin,
+        User
+    }
 
     public User (String username){
 
         this.username=username;
     }
 
-
-    public String getRefToken() {
-        return reftoken;
-    }
-
-    public void setRefToken(String refToken) {
+     public void setRefToken(String refToken) {
         this.reftoken = refToken;
     }
 
+    @JsonIgnore
     public String getSalt() {
         return salt;
     }
@@ -76,6 +88,7 @@ public class User {
         this.salt = salt;
     }
 
+    @JsonIgnore
     public Long getThreshold() {
         return threshold;
     }
@@ -96,6 +109,7 @@ public class User {
 
     }
 
+    @JsonIgnore
     public String getToken() {
         return token;
     }
@@ -109,6 +123,7 @@ public class User {
         this.password = password;
     }
 
+    @JsonIgnore
     public String getPassword() {
 
         return password;

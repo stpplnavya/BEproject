@@ -1,8 +1,10 @@
 package models;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Survey {
@@ -20,10 +22,21 @@ public class Survey {
     @Basic
     private String state;
 
-    @Basic
     @JsonBackReference
     @ManyToOne
     private User admin;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "survey")
+    private List<Feature> features;
+
+    public List<Feature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<Feature> features) {
+        this.features = features;
+    }
 
     public User getAdmin() {
         return admin;

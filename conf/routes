@@ -21,27 +21,31 @@ GET /reftoken/:reftoken                     controllers.UserController.verifyRef
 DELETE /users                               controllers.UserController.deleteUser()
 PUT /users/changeP                          controllers.UserController.changePassword()
 PUT /users/role                             controllers.UserController.updateRole()
+GET /users/logout                           controllers.UserController.logout()
+
 
 #Form
 POST /forms                                  controllers.FeatureController.createForm()
 GET /forms/all                               controllers.FeatureController.getAllForms()
+GET /forms/me/:id                            controllers.FeatureController.getFeaturesOfSurvey(id: Integer)
 DELETE /forms                                controllers.FeatureController.deleteForm()
 PUT /forms/:templename                       controllers.FeatureController.updateForm(templename: String)
 
 #Survey
 POST /surveys                                controllers.SurveyController.createSurvey()
+GET /surveys/me                              controllers.SurveyController.getSurveysOfUser()
 GET /surveys/all                             controllers.SurveyController.getAllSurveys()
 DELETE /surveys                              controllers.SurveyController.deleteSurvey()
-PUT /surveys/:name                            controllers.SurveyController.updateSurvey(name: String)
+PUT /surveys/:name                           controllers.SurveyController.updateSurvey(name: String)
 
 # Image controller
 
-POST /images                        controllers.ImageController.uploadImage()
-GET /images/:id                     controllers.ImageController.downloadImage(id: String)
-DELETE /images/:id                  controllers.ImageController.deleteImage(id: String)
+POST /images                                controllers.ImageController.uploadImage()
+GET /images/:id                             controllers.ImageController.downloadImage(id: String)
+DELETE /images/:id                          controllers.ImageController.deleteImage(id: String)
 
 #MailerService
 
-#POST /mail/:recipient                            controllers.MailerServices.sendEmail(recipient : String)
+#POST /mail/:recipient                      controllers.MailerServices.sendEmail(recipient : String)
 
 

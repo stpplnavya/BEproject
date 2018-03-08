@@ -36,9 +36,12 @@ public class UserDao {
         return user;
     }
 
+
+
     public User findById(Integer id) {
 
         final User user = jpaApi.em().find(User.class, id);
+
         return user;
     }
 
@@ -76,12 +79,24 @@ public class UserDao {
         return users.get(0);
     }
 
+    public User findByEmail(String email) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where email='" + email + "'", User.class);
+        final List<User> users = query.getResultList();
+
+        if (users.isEmpty()) {
+            return null;
+        }
+
+        return users.get(0);
+    }
+
     public List<User> findAllUsers() {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u", User.class);
-        List<User> users = query.getResultList();
+        List<User> users1 = query.getResultList();
 
-        return users;
+        return users1;
     }
 
 }
