@@ -2,6 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.mail.smtp.SMTPMessage;
+import javax.mail.internet.MimeMessage;
 import controllers.Security.Authenticator;
 import controllers.Security.IsAdmin;
 import daos.UserDao;
@@ -12,12 +14,17 @@ import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import javax.swing.JButton;
 
 import javax.inject.Inject;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class UserController extends Controller {
 
@@ -39,7 +46,7 @@ public class UserController extends Controller {
         final JsonNode jsonNode = request().body().asJson();
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
-        //final String role = jsonNode.get("role").asText();
+        final String email = jsonNode.get("email").asText();
 
         if (null == username) {
             return badRequest("Missing user name");
@@ -64,6 +71,7 @@ public class UserController extends Controller {
             String hashedPassword = Utils.generateHashedPassword(password,salt,10);
             user.setPassword(hashedPassword);
             user.setRole(User.Role.User);
+            user.setEmail(email);
             user = userDao.persist(user);
 
             return created(String.valueOf(user.getId()));
@@ -144,16 +152,6 @@ public class UserController extends Controller {
         }
     }
 
-    @Authenticator
-    public Result getCurrentUser() {
-
-        LOGGER.debug("Get current user");
-        final User user = (User) ctx().args.get("user");
-        LOGGER.debug("User: {}", user);
-
-        final JsonNode json = Json.toJson(user);
-        return ok(json);
-    }
 
     @Transactional
     @Authenticator
@@ -238,6 +236,138 @@ public class UserController extends Controller {
 
     }
 
+    @Transactional
+    @Authenticator
+    public Result getCurrentUser() {
+
+        LOGGER.debug("Get current user");
+        final User user = (User) ctx().args.get("user");
+        LOGGER.debug("User: {}", user);
+        String token = user.getToken();
+        Logger.debug("token in getcurrentuser:"+token);
+
+        final JsonNode json = Json.toJson(user);
+        return ok(json);
+    }
+
+    @Transactional
+    @Authenticator
+    public Result roleUpdation(){
+
+        //final JsonNode jsonNode = request().body().asJson();
+        //final String username = jsonNode.get("username").asText();
+
+
+        //compifinal String CONFIGSET = "Configset";
+
+        JButton buttonSave = new JButton("Save");
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class",
+                "javax.net.ssl.SSLSocketFactory");
+        //props.put("mail.smtp.auth", "false");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.port", "587");
+
+        final User user = (User) ctx().args.get("user");
+        String email = user.getEmail();
+        String username=user.getUsername();
+        Integer id=user.getId();
+
+        String recipient="anketrac2018@gmail.com";
+
+        Logger.debug("sender mail: " +email);
+
+
+
+        //Session session = Session.getDefaultInstance(props,null);
+
+        Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication("anketracnew123@gmail.com","anketrac123");
+            }
+        });
+
+        try {
+
+            SMTPMessage message = new SMTPMessage(session);
+            message.setFrom(new InternetAddress("anketracnew123@gmail.com"));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse( recipient ));
+
+            message.setSubject("Make "+email+" as admin");
+            message.setText("I, <"+email+"> want to change from user to admin.So, check my details and make me admin.My details are\n username: "+username+"\n id : "+id
+            +" \n <a href=www.rolechange.eu:8080/changeRole/!Token="+ user.getToken()+" >"
+                    +" <button>Change the role</button> </a>"+);
+            message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
+            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
+
+            Transport.send(message);
+
+        }
+        catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return ok();
+    }
+
+
+    @Transactional
+    @Authenticator
+    public Result forgotPassword() {
+
+        //final JsonNode jsonNode = request().body().asJson();
+        //final String username = jsonNode.get("username").asText();
+
+
+        //compifinal String CONFIGSET = "Configset";
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class",
+                "javax.net.ssl.SSLSocketFactory");
+        //props.put("mail.smtp.auth", "false");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.port", "587");
+
+        final User user = (User) ctx().args.get("user");
+        String recipient = user.getEmail();
+
+        String sender = "anketrac2018@gmail.com";
+
+        Logger.debug("receiver mail: " + recipient);
+
+
+        //Session session = Session.getDefaultInstance(props,null);
+
+        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication(sender, "anketrac123");
+            }
+        });
+
+        try {
+
+            SMTPMessage message = new SMTPMessage(session);
+            message.setFrom(new InternetAddress(sender));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(recipient));
+
+            message.setSubject("Forgot Password");
+            message.setText("Do you want to change your password");
+            message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
+            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
+
+            Transport.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return ok();
+    }
 
     @Transactional
     public Result getAllUsers(){

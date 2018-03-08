@@ -76,6 +76,20 @@ public class UserDao {
         return users.get(0);
     }
 
+    public User findByEmail(String email) {
+
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + email + "'", User.class);
+        final List<User> users = query.getResultList();
+
+        if (users.isEmpty()) {
+            return null;
+        }
+
+        return users.get(0);
+    }
+
+
+
     public List<User> findAllUsers() {
 
         TypedQuery<User> query = jpaApi.em().createQuery("SELECT u FROM User u", User.class);

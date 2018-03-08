@@ -21,6 +21,8 @@ GET /reftoken/:reftoken                     controllers.UserController.verifyRef
 DELETE /users                               controllers.UserController.deleteUser()
 PUT /users/changeP                          controllers.UserController.changePassword()
 PUT /users/role                             controllers.UserController.updateRole()
+GET /updaterole                             controllers.UserController.roleUpdation()
+GET /users/forgotP                          controllers.UserController.forgotPassword()
 
 #Form
 POST /forms                                  controllers.FeatureController.createForm()
@@ -32,16 +34,15 @@ PUT /forms/:templename                       controllers.FeatureController.updat
 POST /surveys                                controllers.SurveyController.createSurvey()
 GET /surveys/all                             controllers.SurveyController.getAllSurveys()
 DELETE /surveys                              controllers.SurveyController.deleteSurvey()
-PUT /surveys/:name                            controllers.SurveyController.updateSurvey(name: String)
+PUT /surveys/:name                           controllers.SurveyController.updateSurvey(name: String)
 
 # Image controller
 
-POST /images                        controllers.ImageController.uploadImage()
-GET /images/:id                     controllers.ImageController.downloadImage(id: String)
-DELETE /images/:id                  controllers.ImageController.deleteImage(id: String)
+POST /images                                 controllers.ImageController.uploadImage()
+GET /images/:id                              controllers.ImageController.downloadImage(id: String)
+DELETE /images/:id                           controllers.ImageController.deleteImage(id: String)
 
 #MailerService
-
-#POST /mail/:recipient                            controllers.MailerServices.sendEmail(recipient : String)
+#GET /updaterole                              controllers.MailerServices.roleUpdation()
 
 
