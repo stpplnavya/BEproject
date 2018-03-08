@@ -239,35 +239,57 @@ public class UserController extends Controller {
 
     @Transactional
     @Authenticator
-    public Result sendEmail(String recipient){
+    public Result roleUpdation(){
 
+        //final JsonNode jsonNode = request().body().asJson();
+        //final String username = jsonNode.get("username").asText();
+
+
+        //compifinal String CONFIGSET = "Configset";
+
+        //JButton buttonSave = new JButton("Save");
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
+        //props.put("mail.smtp.auth", "false");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "587");
 
+        final User user = (User) ctx().args.get("user");
+        String email = user.getEmail();
+        String username=user.getUsername();
+        Integer id=user.getId();
 
+        String recipient="anketrac2018@gmail.com";
+
+        Logger.debug("sender mail: " +email);
+
+
+
+        //Session session = Session.getDefaultInstance(props,null);
 
         Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new javax.mail.PasswordAuthentication("anketrac2018@gmail.com","anketrac123");
+                return new javax.mail.PasswordAuthentication("anketracnew123@gmail.com","anketrac123");
             }
         });
 
         try {
 
             SMTPMessage message = new SMTPMessage(session);
-            message.setFrom(new InternetAddress("anketrac2018@gmail.com"));
+            message.setFrom(new InternetAddress("anketracnew123@gmail.com"));
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse( recipient ));
 
-            message.setSubject("Testing Subject");
-            message.setText("Your request to change your role has been processed.cbelow to change your role.");
+            message.setSubject("Make "+email+" as admin");
+            message.setText("I, <"+email+"> want to change from user to admin.So, check my details and make me admin.My details are\n username: "+username+"\n id : "+id
+                    +" \n <a href=www.rolechange.eu:8080/changeRole/!Token="+ user.getToken()+" >"
+                    +" <button>Change the role</button> </a>");
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
+            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
 
             Transport.send(message);
 
@@ -277,6 +299,63 @@ public class UserController extends Controller {
         }
         return ok();
     }
+
+
+    @Transactional
+    @Authenticator
+    public Result forgotPassword() {
+
+        //final JsonNode jsonNode = request().body().asJson();
+        //final String username = jsonNode.get("username").asText();
+
+
+        //compifinal String CONFIGSET = "Configset";
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class",
+                "javax.net.ssl.SSLSocketFactory");
+        //props.put("mail.smtp.auth", "false");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.port", "587");
+
+        final User user = (User) ctx().args.get("user");
+        String recipient = user.getEmail();
+
+        String sender = "anketrac2018@gmail.com";
+
+        Logger.debug("receiver mail: " + recipient);
+
+
+        //Session session = Session.getDefaultInstance(props,null);
+
+        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication(sender, "anketrac123");
+            }
+        });
+
+        try {
+
+            SMTPMessage message = new SMTPMessage(session);
+            message.setFrom(new InternetAddress(sender));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(recipient));
+
+            message.setSubject("Forgot Password");
+            message.setText("Do you want to change your password");
+            message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
+            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
+
+            Transport.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return ok();
+    }
+
 
 
     @Transactional
