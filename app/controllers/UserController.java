@@ -3,13 +3,11 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.mail.smtp.SMTPMessage;
-import javax.mail.internet.MimeMessage;
 import controllers.Security.Authenticator;
 import controllers.Security.IsAdmin;
 import daos.UserDao;
 import models.User;
 import play.Logger;
-import play.db.jpa.JPAApi;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.libs.F;
@@ -22,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +36,11 @@ public class UserController extends Controller {
 
     TemporaryStorage map = new TemporaryStorage();
 
-    private JPAApi jpaApi;
     private UserDao userDao;
 
     @Inject
-    public UserController (UserDao userDao, JPAApi jpaApi) {
+    public UserController (UserDao userDao) {
         this.userDao = userDao;
-        this.jpaApi =  jpaApi;
     }
 
     @Transactional
@@ -55,6 +50,7 @@ public class UserController extends Controller {
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
         final String email = jsonNode.get("email").asText();
+        //final String role = jsonNode.get("role").asText();
 
         if (null == username) {
             return badRequest("Missing user name");
@@ -62,11 +58,9 @@ public class UserController extends Controller {
         if (null == password) {
             return badRequest("Missing password");
         }
-
-        //if (null == role) {
-          //    return badRequest("Missing role");
-        //}
-         //user.setRole(role);
+        if (null == email) {
+            return badRequest("Missing email");
+        }
 
         User user = userDao.findByName(username);
 
@@ -111,7 +105,7 @@ public class UserController extends Controller {
         String hashPwd = Utils.generateHashedPassword(password,salt,10);
         Logger.debug("Hashed password : "+hashPwd);
         Logger.debug("DB password : "+user.getPassword());
-        Logger.debug("User Role"+user.getRole());
+        Logger.debug("User Role : "+user.getRole());
         if (hashPwd.equals(user.getPassword())) {
 
             String token = Utils.generateToken();
@@ -160,6 +154,17 @@ public class UserController extends Controller {
         }
     }
 
+    @Transactional
+    @Authenticator
+    public Result getCurrentUser() {
+
+        LOGGER.debug("Get current user");
+        final User user = (User) ctx().args.get("user");
+        LOGGER.debug("User: {}", user);
+
+        final JsonNode json = Json.toJson(user);
+        return ok(json);
+    }
 
     @Transactional
     @Authenticator
@@ -172,9 +177,8 @@ public class UserController extends Controller {
         }
 
         final User user = userDao.deleteByName(username);
-
         if(null==user){
-            return notFound("user with the following username nt found"+username);
+            return notFound("user with the following username not found"+username);
         }
         if (user.getUsername() == null) {
             return noContent();
@@ -217,7 +221,6 @@ public class UserController extends Controller {
         }
 
         return ok("changed password");
-
     }
 
     @Transactional
@@ -226,6 +229,7 @@ public class UserController extends Controller {
     public Result updateRole(){
 
         final JsonNode jsonNode = request().body().asJson();
+
         final String username = jsonNode.get("username").asText();
         if (null == username) {
             return badRequest("Missing user name");
@@ -241,21 +245,6 @@ public class UserController extends Controller {
         userDao.persist(user);
 
         return ok("role updated");
-
-    }
-
-    @Transactional
-    @Authenticator
-    public Result getCurrentUser() {
-
-        LOGGER.debug("Get current user");
-        final User user = (User) ctx().args.get("user");
-        LOGGER.debug("User: {}", user);
-        String token = user.getToken();
-        Logger.debug("token in getcurrentuser:"+token);
-
-        final JsonNode json = Json.toJson(user);
-        return ok(json);
     }
 
     @Transactional
@@ -297,6 +286,7 @@ public class UserController extends Controller {
             message.setSubject("Make "+email+" as admin");
             message.setText("I, <"+email+"> want to change from user to admin.So, check my details and make me admin.My details are\n username: "+username+"\n id : "+id
             +" \n www.rolechange.eu:8080/changeRole/!Token="+ user.getToken());
+
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
 
             Transport.send(message);
@@ -328,6 +318,7 @@ public class UserController extends Controller {
         F.Tuple<User, Long> tuple = new F.Tuple(user, timeStamp);
 
         map.addMap(randomToken, tuple);
+
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
@@ -367,6 +358,8 @@ public class UserController extends Controller {
         }
         return ok();
     }
+
+
 
     @Transactional
     public Result resetPassword() throws NoSuchAlgorithmException{
@@ -408,18 +401,28 @@ public class UserController extends Controller {
         Logger.debug("new password: " +hashedPassword );
 
         return  ok("Successfully reset the password");
-
-
-
     }
 
     @Transactional
+    @Authenticator
     public Result getAllUsers(){
 
         final List<User> users = userDao.findAllUsers();
-
         final JsonNode jsonNode = Json.toJson(users);
 
         return ok(jsonNode);
+    }
+
+    @Transactional
+    @Authenticator
+    public Result logout() {
+
+        session().clear();
+        User user = (User) ctx().args.get("user");
+        user.setToken(null);
+        user.setRefToken(null);
+        user.setThreshold(null);
+
+        return ok("Logged out successfully");
     }
 }

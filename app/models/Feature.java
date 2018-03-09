@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.io.File;
 
@@ -24,6 +26,10 @@ public class Feature {
 
     @Basic
     private File file;
+
+    @JsonBackReference
+    @ManyToOne
+    private Survey survey;
 
     public File getFile() {
         return file;
@@ -59,6 +65,14 @@ public class Feature {
 
     public String getTimings() {
         return timings;
+    }
+
+    public Survey getSurvey() {
+        return survey;
+    }
+
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
     }
 
     public void setTimings(String timings) {

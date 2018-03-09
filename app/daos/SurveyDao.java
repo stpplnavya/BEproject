@@ -49,9 +49,9 @@ public class SurveyDao {
         return survey;
     }
 
-    public List<Survey> findAllSurveys() {
+    public List<Survey> findSAllSurveys() {
 
-        TypedQuery<Survey> query = jpaApi.em().createQuery("SELECT s FROM Survey s", Survey.class);
+        TypedQuery<Survey> query = jpaApi.em().createQuery("SELECT s FROM Survey s " , Survey.class);
         List<Survey> surveys = query.getResultList();
 
         return surveys;

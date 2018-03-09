@@ -9,7 +9,6 @@ import daos.UserDao;
 import models.Survey;
 import models.User;
 import play.Logger;
-import play.db.jpa.JPAApi;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -25,21 +24,13 @@ public class SurveyController extends Controller {
     private final static Logger.ALogger LOGGER = Logger.of(SurveyController.class);
     private Map<Integer, Survey> survey = new HashMap<>();
 
-    private JPAApi jpaApi;
     private SurveyDao surveyDao;
     private UserDao userDao;
 
     @javax.inject.Inject
-    public SurveyController (SurveyDao surveyDao, UserDao userDao,JPAApi jpaApi) {
+    public SurveyController (SurveyDao surveyDao, UserDao userDao) {
         this.surveyDao = surveyDao;
         this.userDao= userDao;
-        this.jpaApi=jpaApi;
-    }
-
-    public User persist(User user) {
-
-        jpaApi.em().persist(user);
-        return user;
     }
 
     @Transactional
@@ -47,16 +38,13 @@ public class SurveyController extends Controller {
     @IsAdmin
     public Result createSurvey() {
 
-        User user = (User) ctx().args.get("user");
-
-        //if (user.getRole() != User.Role.Admin) {
-            //return forbidden();
-        //}
-
         JsonNode jsonNode = request().body().asJson();
+        final Integer userId = jsonNode.get("user_id").asInt();
         final String name = jsonNode.get("name").asText();
         final String description = jsonNode.get("description").asText();
         final String state = jsonNode.get("state").asText();
+
+        User user = userDao.findById(userId);
 
         Survey survey = new Survey();
         survey.setName(name);
@@ -65,7 +53,6 @@ public class SurveyController extends Controller {
         survey.setAdmin(user);
 
         LOGGER.debug("user id before: {}", survey.getId());
-
         survey = surveyDao.persist(survey);
 
         if (null == user.getSurveys()) {
@@ -76,14 +63,21 @@ public class SurveyController extends Controller {
             user.getSurveys().add(survey);
         }
 
-        // Write updated user back to database
-        user= userDao.persist(user);
-
-
+        userDao.persist(user);
         LOGGER.debug("user id after: {}", survey.getId());
-        // store in DB
-        // return user id
         return created(survey.getId().toString());
+    }
+
+    @Transactional
+    @Authenticator
+    public Result getSurveysOfUser() {
+
+        final User user = (User) ctx().args.get("user");
+        List<Survey> surveys = user.getSurveys();
+        LOGGER.debug("Suverys {}", surveys.size());
+
+        final JsonNode json = Json.toJson(surveys);
+        return ok(json);
     }
 
     @Transactional
@@ -98,7 +92,6 @@ public class SurveyController extends Controller {
         }
 
         final Survey survey = surveyDao.deleteByName(name);
-
         if(null==survey){
             return notFound("user with the following username nt found"+name);
         }
@@ -127,11 +120,13 @@ public class SurveyController extends Controller {
         return ok(result1);
     }
 
+
     @Transactional
     @Authenticator
     public Result getAllSurveys() {
 
-        final List<Survey> surveys = surveyDao.findAllSurveys();
+        final List<Survey> surveys = surveyDao.findSAllSurveys();
+        Logger.debug("Result : "+ surveys);
         final JsonNode jsonNode = Json.toJson(surveys);
         return (ok(jsonNode));
     }
