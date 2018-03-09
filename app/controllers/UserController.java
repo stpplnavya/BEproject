@@ -305,11 +305,6 @@ public class UserController extends Controller {
     @Authenticator
     public Result forgotPassword() {
 
-        //final JsonNode jsonNode = request().body().asJson();
-        //final String username = jsonNode.get("username").asText();
-
-
-        //compifinal String CONFIGSET = "Configset";
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
@@ -325,8 +320,6 @@ public class UserController extends Controller {
         String sender = "anketrac2018@gmail.com";
 
         Logger.debug("receiver mail: " + recipient);
-
-
         //Session session = Session.getDefaultInstance(props,null);
 
         Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
