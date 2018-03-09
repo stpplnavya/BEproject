@@ -2,6 +2,9 @@ package daos;
 
 import models.User;
 import play.db.jpa.JPAApi;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
@@ -98,5 +101,6 @@ public class UserDao {
 
         return users1;
     }
+
 
 }

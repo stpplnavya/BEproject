@@ -23,7 +23,8 @@ PUT /users/changeP                          controllers.UserController.changePas
 PUT /users/role                             controllers.UserController.updateRole()
 GET /users/logout                           controllers.UserController.logout()
 GET /updaterole                             controllers.UserController.roleUpdation()
-GET /users/forgotP                          controllers.UserController.forgotPassword()
+GET /users/forgotP/:email                   controllers.UserController.forgotPassword(email: String)
+POST /resetP                                 controllers.UserController.resetPassword()
 
 #Form
 POST /forms                                  controllers.FeatureController.createForm()
