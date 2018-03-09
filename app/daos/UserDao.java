@@ -2,6 +2,9 @@ package daos;
 
 import models.User;
 import play.db.jpa.JPAApi;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
@@ -78,7 +81,7 @@ public class UserDao {
 
     public User findByEmail(String email) {
 
-        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where username='" + email + "'", User.class);
+        TypedQuery<User> query = jpaApi.em().createQuery("select u from User u where email='" + email + "'", User.class);
         final List<User> users = query.getResultList();
 
         if (users.isEmpty()) {
@@ -97,5 +100,6 @@ public class UserDao {
 
         return users;
     }
+
 
 }

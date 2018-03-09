@@ -22,7 +22,8 @@ DELETE /users                               controllers.UserController.deleteUse
 PUT /users/changeP                          controllers.UserController.changePassword()
 PUT /users/role                             controllers.UserController.updateRole()
 GET /updaterole                             controllers.UserController.roleUpdation()
-GET /users/forgotP                          controllers.UserController.forgotPassword()
+GET /users/forgotP/:email                   controllers.UserController.forgotPassword(email: String)
+POST /resetP                                 controllers.UserController.resetPassword()
 
 #Form
 POST /forms                                  controllers.FeatureController.createForm()

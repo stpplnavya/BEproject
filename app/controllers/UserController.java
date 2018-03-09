@@ -12,10 +12,13 @@ import play.Logger;
 import play.db.jpa.JPAApi;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
-import javax.swing.JButton;
 
+import javax.rmi.CORBA.Util;
+import javax.swing.JButton;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -25,11 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import models.TemporaryStorage;
+import java.sql.Timestamp;
+
 
 public class UserController extends Controller {
 
     private final static Logger.ALogger LOGGER = Logger.of(UserController.class);
     private Map<Integer, User> users = new HashMap<>();
+
+    TemporaryStorage map = new TemporaryStorage();
 
     private JPAApi jpaApi;
     private UserDao userDao;
@@ -254,19 +262,11 @@ public class UserController extends Controller {
     @Authenticator
     public Result roleUpdation(){
 
-        //final JsonNode jsonNode = request().body().asJson();
-        //final String username = jsonNode.get("username").asText();
-
-
-        //compifinal String CONFIGSET = "Configset";
-
-        JButton buttonSave = new JButton("Save");
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
-        //props.put("mail.smtp.auth", "false");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "587");
 
@@ -279,9 +279,6 @@ public class UserController extends Controller {
 
         Logger.debug("sender mail: " +email);
 
-
-
-        //Session session = Session.getDefaultInstance(props,null);
 
         Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
             @Override
@@ -299,10 +296,8 @@ public class UserController extends Controller {
 
             message.setSubject("Make "+email+" as admin");
             message.setText("I, <"+email+"> want to change from user to admin.So, check my details and make me admin.My details are\n username: "+username+"\n id : "+id
-            +" \n <a href=www.rolechange.eu:8080/changeRole/!Token="+ user.getToken()+" >"
-                    +" <button>Change the role</button> </a>"+);
+            +" \n www.rolechange.eu:8080/changeRole/!Token="+ user.getToken());
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
-            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
 
             Transport.send(message);
 
@@ -315,32 +310,35 @@ public class UserController extends Controller {
 
 
     @Transactional
-    @Authenticator
-    public Result forgotPassword() {
+    public Result forgotPassword(String email) {
 
-        //final JsonNode jsonNode = request().body().asJson();
-        //final String username = jsonNode.get("username").asText();
+        User user=userDao.findByEmail(email);
+        Logger.debug("Username: "+user.getUsername());
+        if(user == null){
 
+            return badRequest();
+        }
 
-        //compifinal String CONFIGSET = "Configset";
+        String randomToken = Utils.generateToken();
+        Long timeStamp = Utils.generateThreshold();
+
+        Logger.debug("Random Token: "+randomToken);
+        Logger.debug("timeStamp : "+ timeStamp);
+
+        F.Tuple<User, Long> tuple = new F.Tuple(user, timeStamp);
+
+        map.addMap(randomToken, tuple);
+
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
-        //props.put("mail.smtp.auth", "false");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "587");
 
-        final User user = (User) ctx().args.get("user");
-        String recipient = user.getEmail();
 
         String sender = "anketrac2018@gmail.com";
-
-        Logger.debug("receiver mail: " + recipient);
-
-
-        //Session session = Session.getDefaultInstance(props,null);
 
         Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
             @Override
@@ -351,15 +349,16 @@ public class UserController extends Controller {
 
         try {
 
+            String url = "http://localhost:3000/forgotpassword/";
+
             SMTPMessage message = new SMTPMessage(session);
             message.setFrom(new InternetAddress(sender));
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(recipient));
+                    InternetAddress.parse(email));
 
             message.setSubject("Forgot Password");
-            message.setText("Do you want to change your password");
+            message.setText("To change password, click here:\n" + url + randomToken);
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
-            //message.setHeader("X-SES-CONFIGURATION-SET", CONFIGSET);
 
             Transport.send(message);
 
@@ -367,6 +366,51 @@ public class UserController extends Controller {
             throw new RuntimeException(e);
         }
         return ok();
+    }
+
+    @Transactional
+    public Result resetPassword() throws NoSuchAlgorithmException{
+
+        final JsonNode jsonNode = request().body().asJson();
+        final String newPassword = jsonNode.get("newPassword").asText();
+        final String userToken = jsonNode.get("id").asText();
+
+        ConcurrentHashMap<String, F.Tuple<User, Long>> result = map.getMap();
+
+        F.Tuple tuple = result.get(userToken);
+        LOGGER.debug("tuple value"+tuple);
+
+        if (null == tuple) {
+            return forbidden();
+        }
+
+        User user = (User) tuple._1;
+        Long timestamp = (Long) tuple._2;
+
+        Long currentTime = new Timestamp(System.currentTimeMillis()).getTime();
+
+        Logger.debug("Current time: "+currentTime);
+        Logger.debug("timestamp: "+timestamp );
+
+        if(currentTime > timestamp) {
+            return badRequest("the link is no longer valid");
+        }
+
+        String username=user.getUsername();
+        Logger.debug("Username in tuple: "+username);
+        String salt = Utils.generateSalt();
+
+        String hashedPassword = Utils.generateHashedPassword(newPassword, salt, 10);
+        User user1=userDao.findByName(username);
+        user1.setPassword(hashedPassword);
+        user1.setSalt(salt);
+        userDao.persist(user1);
+        Logger.debug("new password: " +hashedPassword );
+
+        return  ok("Successfully reset the password");
+
+
+
     }
 
     @Transactional
