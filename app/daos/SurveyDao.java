@@ -49,6 +49,17 @@ public class SurveyDao {
         return survey;
     }
 
+    public Survey update(Survey survey) {
+
+        Survey existingSurvey = findById(survey.getId());
+        existingSurvey.setName(survey.getName());
+        existingSurvey.setDescription(survey.getDescription());
+        existingSurvey.setState(survey.getState());
+        jpaApi.em().merge(existingSurvey);
+
+        return existingSurvey;
+    }
+
     public List<Survey> findSAllSurveys() {
 
         TypedQuery<Survey> query = jpaApi.em().createQuery("SELECT s FROM Survey s " , Survey.class);

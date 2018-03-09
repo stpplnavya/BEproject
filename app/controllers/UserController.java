@@ -241,35 +241,23 @@ public class UserController extends Controller {
     @Authenticator
     public Result roleUpdation(){
 
-        //final JsonNode jsonNode = request().body().asJson();
-        //final String username = jsonNode.get("username").asText();
-
-
-        //compifinal String CONFIGSET = "Configset";
-
-        //JButton buttonSave = new JButton("Save");
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
-        //props.put("mail.smtp.auth", "false");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "587");
 
         final User user = (User) ctx().args.get("user");
+
         String email = user.getEmail();
         String username=user.getUsername();
         Integer id=user.getId();
-
         String recipient="anketrac2018@gmail.com";
 
         Logger.debug("sender mail: " +email);
-
-
-
         //Session session = Session.getDefaultInstance(props,null);
-
         Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -335,7 +323,6 @@ public class UserController extends Controller {
             message.setFrom(new InternetAddress(sender));
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(recipient));
-
             message.setSubject("Forgot Password");
             message.setText("Do you want to change your password");
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
@@ -348,8 +335,6 @@ public class UserController extends Controller {
         }
         return ok();
     }
-
-
 
     @Transactional
     @Authenticator

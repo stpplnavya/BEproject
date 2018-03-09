@@ -24,6 +24,7 @@ public class FeatureDao {
 
     public Feature findById(Integer id) {
 
+        Logger.debug("ID : "+id);
         final Feature form = jpaApi.em().find(Feature.class, id);
         return form;
     }
@@ -58,4 +59,19 @@ public class FeatureDao {
 
         return forms;
     }
+
+    public Feature update(Feature feature, Integer id) {
+
+        Logger.debug("Received : "+feature);
+
+        Feature existingFeature = findById(id);
+        existingFeature.setTemplename(feature.getTemplename());
+        existingFeature.setPlace(feature.getPlace());
+        existingFeature.setTimings(feature.getTimings());
+        existingFeature.setVisitors(feature.getVisitors());
+        jpaApi.em().merge(existingFeature);
+
+        return existingFeature;
+    }
 }
+

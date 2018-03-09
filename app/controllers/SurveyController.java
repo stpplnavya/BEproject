@@ -1,11 +1,11 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.Security.Authenticator;
 import controllers.Security.IsAdmin;
 import daos.SurveyDao;
 import daos.UserDao;
+import javassist.NotFoundException;
 import models.Survey;
 import models.User;
 import play.Logger;
@@ -70,6 +70,19 @@ public class SurveyController extends Controller {
 
     @Transactional
     @Authenticator
+    public Result getSurveyById(Integer id) throws NotFoundException {
+
+        if (null == id) {
+            return badRequest();
+        }
+
+        final Survey survey = surveyDao.findById(id);
+        final JsonNode json = Json.toJson(survey);
+        return ok(json);
+    }
+
+    @Transactional
+    @Authenticator
     public Result getSurveysOfUser() {
 
         final User user = (User) ctx().args.get("user");
@@ -101,24 +114,41 @@ public class SurveyController extends Controller {
 
     @Transactional
     @Authenticator
-    public Result updateSurvey(String name) {
+    public Result updateSurveyById(Integer id) throws NotFoundException {
 
-        final JsonNode jsonNode = request().body().asJson();
-        final String state = jsonNode.get("state").asText();
-
-        if(null == state) {
-            return badRequest("Missing user name of state");
+        if (null == id) {
+            return badRequest();
         }
-        final Survey survey = surveyDao.findByName(name);
-        survey.setState(state);
-        surveyDao.persist(survey);
 
-        ObjectNode result1 = Json.newObject();
-        result1.put("name", name);
-        result1.put("state", state);
+        final JsonNode json = request().body().asJson();
+        if (null == json) {
+            Logger.error("Unable to get json from request");
+            return badRequest();
+        }
 
-        return ok(result1);
+        final Survey survey = Json.fromJson(json, Survey.class);
+        if (null == survey) {
+            Logger.error("Unable to parse json to Book object");
+            return badRequest();
+        }
+
+        if (null == survey.getName()) {
+            return badRequest();
+        }
+
+        if (null == survey.getDescription()) {
+            return badRequest();
+        }
+
+        if (null == survey.getState()) {
+            return badRequest();
+        }
+
+        surveyDao.update(survey);
+        return ok(json);
     }
+
+
 
 
     @Transactional

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import controllers.Security.Authenticator;
 import daos.FeatureDao;
 import daos.SurveyDao;
+import javassist.NotFoundException;
 import models.Feature;
 import models.Survey;
 import play.Logger;
@@ -84,6 +85,20 @@ public class FeatureController extends Controller {
 
     @Transactional
     @Authenticator
+    public Result getFeatureById(Integer id) throws NotFoundException {
+
+        if (null == id) {
+            return badRequest();
+        }
+
+        final Feature feature = featureDao.findById(id);
+        final JsonNode json = Json.toJson(feature);
+        return ok(json);
+
+    }
+
+    @Transactional
+    @Authenticator
     public Result deleteForm() {
         final JsonNode jsonNode = request().body().asJson();
         final String templename = jsonNode.get("templename").asText();
@@ -103,22 +118,42 @@ public class FeatureController extends Controller {
 
     @Transactional
     @Authenticator
-    public Result updateForm(String templename){
+    public Result updateFormById(Integer id) throws NotFoundException {
 
-        final JsonNode jsonNode = request().body().asJson();
-        final String place = jsonNode.get("place").asText();
-
-        if(null == place){
-            return badRequest("Missing data to be updated");
+        if (null == id) {
+            return badRequest();
         }
 
-        final Feature feature = featureDao.findByName(templename);
+        final JsonNode json = request().body().asJson();
+        if (null == json) {
+            Logger.error("Unable to get json from request");
+            return badRequest();
+        }
 
-        feature.setPlace(place);
-        featureDao.persist(feature);
+        final Feature feature = Json.fromJson(json, Feature.class);
+        if (null == feature) {
+            Logger.error("Unable to parse json to Book object");
+            return badRequest();
+        }
 
-        return ok("updated the change you made");
+        if (null == feature.getTemplename()) {
+            return badRequest();
+        }
 
+        if (null == feature.getPlace()) {
+            return badRequest();
+        }
+
+        if (null == feature.getTimings()) {
+            return badRequest();
+        }
+
+        if (null == feature.getVisitors()) {
+            return badRequest();
+        }
+        Logger.debug("Feature : {}",feature);
+        featureDao.update(feature , id);
+        return ok("Features updated successfully.");
     }
 
     @Transactional

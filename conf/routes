@@ -29,15 +29,17 @@ GET /users/forgotP                          controllers.UserController.forgotPas
 POST /forms                                  controllers.FeatureController.createForm()
 GET /forms/all                               controllers.FeatureController.getAllForms()
 GET /forms/me/:id                            controllers.FeatureController.getFeaturesOfSurvey(id: Integer)
+GET /form/:id                                controllers.FeatureController.getFeatureById(id: Integer)
 DELETE /forms                                controllers.FeatureController.deleteForm()
-PUT /forms/:templename                       controllers.FeatureController.updateForm(templename: String)
+PUT /forms/:id                               controllers.FeatureController.updateFormById(id: Integer)
 
 #Survey
 POST /surveys                                controllers.SurveyController.createSurvey()
 GET /surveys/me                              controllers.SurveyController.getSurveysOfUser()
 GET /surveys/all                             controllers.SurveyController.getAllSurveys()
+GET /survey/:id                              controllers.SurveyController.getSurveyById(id: Integer)
 DELETE /surveys                              controllers.SurveyController.deleteSurvey()
-PUT /surveys/:name                           controllers.SurveyController.updateSurvey(name: String)
+PUT /surveys/:id                             controllers.SurveyController.updateSurveyById(id: Integer)
 
 # Image controller
 
