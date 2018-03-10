@@ -10,7 +10,7 @@ public class Utils {
 
     static public String generateSalt() {
 
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+       /* String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
         StringBuilder salt = new StringBuilder();
         Random rnd = new Random();
 
@@ -21,7 +21,12 @@ public class Utils {
         }
 
         String saltStr = salt.toString();
-        return saltStr;
+        return saltStr;*/
+       play.Logger.ALogger LOGGER = play.Logger.of(SurveyController.class);
+       String salt = generateToken();
+       String saltvalue = salt.substring(0,9);
+       LOGGER.debug("Saltvalue : "+saltvalue);
+        return saltvalue;
     }
 
     public static String generateHashedPassword(String password, String salt, int iteration) throws NoSuchAlgorithmException {

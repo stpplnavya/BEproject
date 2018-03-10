@@ -6,27 +6,25 @@ import com.sun.mail.smtp.SMTPMessage;
 import controllers.Security.Authenticator;
 import controllers.Security.IsAdmin;
 import daos.UserDao;
+import models.TemporaryStorage;
 import models.User;
 import play.Logger;
 import play.db.jpa.Transactional;
-import play.libs.Json;
 import play.libs.F;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import javax.rmi.CORBA.Util;
-import javax.swing.JButton;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import models.TemporaryStorage;
-import java.sql.Timestamp;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class UserController extends Controller {
@@ -50,7 +48,6 @@ public class UserController extends Controller {
         final String username = jsonNode.get("username").asText();
         final String password = jsonNode.get("password").asText();
         final String email = jsonNode.get("email").asText();
-        //final String role = jsonNode.get("role").asText();
 
         if (null == username) {
             return badRequest("Missing user name");

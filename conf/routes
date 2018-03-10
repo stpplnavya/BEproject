@@ -2,15 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-# An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 #User
 POST /users/signup                          controllers.UserController.createUser()
@@ -24,23 +16,23 @@ PUT /users/role                             controllers.UserController.updateRol
 GET /users/logout                           controllers.UserController.logout()
 GET /updaterole                             controllers.UserController.roleUpdation()
 GET /users/forgotP/:email                   controllers.UserController.forgotPassword(email: String)
-POST /resetP                                 controllers.UserController.resetPassword()
+POST /resetP                                controllers.UserController.resetPassword()
 
 #Form
-POST /forms                                  controllers.FeatureController.createForm()
-GET /forms/all                               controllers.FeatureController.getAllForms()
-GET /forms/me/:id                            controllers.FeatureController.getFeaturesOfSurvey(id: Integer)
-GET /form/:id                                controllers.FeatureController.getFeatureById(id: Integer)
-DELETE /forms                                controllers.FeatureController.deleteForm()
-PUT /forms/:id                               controllers.FeatureController.updateFormById(id: Integer)
+POST /forms                                 controllers.FeatureController.createForm()
+GET /forms/all                              controllers.FeatureController.getAllForms()
+GET /forms/me/:id                           controllers.FeatureController.getFeaturesOfSurvey(id: Integer)
+GET /form/:id                               controllers.FeatureController.getFeatureById(id: Integer)
+DELETE /forms                               controllers.FeatureController.deleteForm()
+PUT /forms/:id                              controllers.FeatureController.updateFormById(id: Integer)
 
 #Survey
-POST /surveys                                controllers.SurveyController.createSurvey()
-GET /surveys/me                              controllers.SurveyController.getSurveysOfUser()
-GET /surveys/all                             controllers.SurveyController.getAllSurveys()
-GET /survey/:id                              controllers.SurveyController.getSurveyById(id: Integer)
-DELETE /surveys                              controllers.SurveyController.deleteSurvey()
-PUT /surveys/:id                             controllers.SurveyController.updateSurveyById(id: Integer)
+POST /surveys                               controllers.SurveyController.createSurvey()
+GET /surveys/me                             controllers.SurveyController.getSurveysOfUser()
+GET /surveys/all                            controllers.SurveyController.getAllSurveys()
+GET /survey/:id                             controllers.SurveyController.getSurveyById(id: Integer)
+DELETE /surveys                             controllers.SurveyController.deleteSurvey()
+PUT /surveys/:id                            controllers.SurveyController.updateSurveyById(id: Integer)
 
 # Image controller
 

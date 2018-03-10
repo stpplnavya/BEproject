@@ -16,14 +16,11 @@ public class TemporaryStorage {
 
     public void addMap(String token, F.Tuple tuple) {
 
-        //LOGGER.debug("Inside addMap");
         map.put(token, tuple);
     }
 
     public ConcurrentHashMap<String, F.Tuple<User, Long>> getMap() {
 
-        //LOGGER.debug("Inside getMap");
-        //LOGGER.debug(String.valueOf(map.get(0)));
         return map;
     }
 
