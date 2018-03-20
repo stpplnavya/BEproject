@@ -263,7 +263,7 @@ public class UserController extends Controller {
 
         Logger.debug("sender mail: " +email);
 
-        Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props,new javax.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new javax.mail.PasswordAuthentication("anketracnew123@gmail.com","anketrac123");
@@ -303,15 +303,15 @@ public class UserController extends Controller {
             return badRequest();
         }
 
-        String randomToken = Utils.generateToken();
+        String otp = Utils.generateSalt();
         Long timeStamp = Utils.generateThreshold();
 
-        Logger.debug("Random Token: "+randomToken);
+        Logger.debug("OTP: "+otp);
         Logger.debug("timeStamp : "+ timeStamp);
 
         F.Tuple<User, Long> tuple = new F.Tuple(user, timeStamp);
 
-        map.addMap(randomToken, tuple);
+        map.addMap(otp, tuple);
 
 
         Properties props = new Properties();
@@ -325,7 +325,7 @@ public class UserController extends Controller {
 
         String sender = "anketrac2018@gmail.com";
 
-        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new javax.mail.PasswordAuthentication(sender, "anketrac123");
@@ -343,7 +343,7 @@ public class UserController extends Controller {
                     InternetAddress.parse(email));
 
             message.setSubject("Forgot Password");
-            message.setText("To change password, click here:\n" + url + randomToken);
+            message.setText("To change password \n Your otp is : "+otp+"\n click here:\n" +url);
             message.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS);
 
             Transport.send(message);
@@ -359,12 +359,12 @@ public class UserController extends Controller {
 
         final JsonNode jsonNode = request().body().asJson();
         final String newPassword = jsonNode.get("newPassword").asText();
-        final String userToken = jsonNode.get("id").asText();
+        final String otp = jsonNode.get("otp").asText();
 
         ConcurrentHashMap<String, F.Tuple<User, Long>> result = map.getMap();
 
-        F.Tuple tuple = result.get(userToken);
-        LOGGER.debug("tuple value"+tuple);
+        F.Tuple tuple = result.get(otp);
+        LOGGER.debug("tuple value "+tuple);
 
         if (null == tuple) {
             return forbidden();
