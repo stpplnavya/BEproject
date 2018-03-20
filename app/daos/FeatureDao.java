@@ -65,9 +65,12 @@ public class FeatureDao {
         Logger.debug("Received : "+feature);
 
         Feature existingFeature = findById(id);
-        existingFeature.setTemplename(feature.getTemplename());
-        existingFeature.setPlace(feature.getPlace());
+        existingFeature.setName(feature.getName());
         existingFeature.setTimings(feature.getTimings());
+        existingFeature.setAddress(feature.getAddress());
+        existingFeature.setEntryFee(feature.getEntryFee());
+        existingFeature.setImageUrl(feature.getImageUrl());
+        existingFeature.setReviews(feature.getReviews());
         existingFeature.setVisitors(feature.getVisitors());
         existingFeature.setLatitude(feature.getLatitude());
         existingFeature.setLongitude(feature.getLongitude());

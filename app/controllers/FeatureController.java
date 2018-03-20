@@ -37,9 +37,12 @@ public class FeatureController extends Controller {
 
         JsonNode jsonNode = request().body().asJson();
         final Integer surveyId = jsonNode.get("survey_id").asInt();
-        final String templename = jsonNode.get("templename").asText();
-        final String place = jsonNode.get("place").asText();
+        final String name = jsonNode.get("name").asText();
         final String timings = jsonNode.get("timings").asText();
+        final String address = jsonNode.get("address").asText();
+        final Integer entryFee = jsonNode.get("fee").asInt();
+        final String imageUrl = jsonNode.get("imageUrl").asText();
+        final String reviews = jsonNode.get("reviews").asText();
         final Integer visitors = Integer.valueOf(jsonNode.get("visitors").asText());
         final Double latitude = jsonNode.get("latitude").asDouble();
         final Double longitude = jsonNode.get("longitude").asDouble();
@@ -47,9 +50,12 @@ public class FeatureController extends Controller {
         Survey survey1 = surveyDao.findById(surveyId);
 
         Feature form = new Feature();
-        form.setTemplename(templename);
-        form.setPlace(place);
+        form.setName(name);
         form.setTimings(timings);
+        form.setAddress(address);
+        form.setEntryFee(entryFee);
+        form.setImageUrl(imageUrl);
+        form.setReviews(reviews);
         form.setVisitors(visitors);
         form.setLatitude(latitude);
         form.setLongitude(longitude);
@@ -140,11 +146,7 @@ public class FeatureController extends Controller {
             return badRequest();
         }
 
-        if (null == feature.getTemplename()) {
-            return badRequest();
-        }
-
-        if (null == feature.getPlace()) {
+        if (null == feature.getName()) {
             return badRequest();
         }
 
