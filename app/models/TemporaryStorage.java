@@ -20,7 +20,6 @@ public class TemporaryStorage {
     }
 
     public ConcurrentHashMap<String, F.Tuple<User, Long>> getMap() {
-
         return map;
     }
 

@@ -41,6 +41,8 @@ public class FeatureController extends Controller {
         final String place = jsonNode.get("place").asText();
         final String timings = jsonNode.get("timings").asText();
         final Integer visitors = Integer.valueOf(jsonNode.get("visitors").asText());
+        final Double latitude = jsonNode.get("latitude").asDouble();
+        final Double longitude = jsonNode.get("longitude").asDouble();
 
         Survey survey1 = surveyDao.findById(surveyId);
 
@@ -49,6 +51,8 @@ public class FeatureController extends Controller {
         form.setPlace(place);
         form.setTimings(timings);
         form.setVisitors(visitors);
+        form.setLatitude(latitude);
+        form.setLongitude(longitude);
         form.setSurvey(survey1);
 
         LOGGER.debug("Form id before: {}", form.getId());

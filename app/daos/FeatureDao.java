@@ -69,6 +69,8 @@ public class FeatureDao {
         existingFeature.setPlace(feature.getPlace());
         existingFeature.setTimings(feature.getTimings());
         existingFeature.setVisitors(feature.getVisitors());
+        existingFeature.setLatitude(feature.getLatitude());
+        existingFeature.setLongitude(feature.getLongitude());
         jpaApi.em().merge(existingFeature);
 
         return existingFeature;

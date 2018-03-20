@@ -1,5 +1,4 @@
 package controllers;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.mail.smtp.SMTPMessage;
@@ -14,7 +13,6 @@ import play.libs.F;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-
 import javax.inject.Inject;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -32,7 +30,7 @@ public class UserController extends Controller {
     private final static Logger.ALogger LOGGER = Logger.of(UserController.class);
     private Map<Integer, User> users = new HashMap<>();
 
-    TemporaryStorage map = new TemporaryStorage();
+    private TemporaryStorage map = new TemporaryStorage();
 
     private UserDao userDao;
 

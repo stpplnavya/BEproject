@@ -44,4 +44,3 @@ DELETE /images/:id                          controllers.ImageController.deleteIm
 
 #POST /mail/:recipient                      controllers.MailerServices.sendEmail(recipient : String)
 
-
